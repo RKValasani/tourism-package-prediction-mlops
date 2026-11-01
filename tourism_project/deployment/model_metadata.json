@@ -28,11 +28,11 @@
     "classifier__subsample": 0.8
   },
   "metrics": {
-    "train_accuracy": 0.9861543786777431,
-    "test_accuracy": 0.9015334947538337,
-    "test_precision": 0.8461538461538461,
-    "test_recall": 0.5983263598326359,
-    "test_f1": 0.7009803921568627,
-    "test_roc_auc": 0.9405941422594143
+    "train_accuracy": 0.9896157840083074,
+    "test_accuracy": 0.9079903147699758,
+    "test_precision": 0.8834355828220859,
+    "test_recall": 0.602510460251046,
+    "test_f1": 0.7164179104477612,
+    "test_roc_auc": 0.9383723849372384
   }
 }
