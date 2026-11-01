@@ -1,0 +1,38 @@
+{
+  "target": "ProdTaken",
+  "features": [
+    "Age",
+    "TypeofContact",
+    "CityTier",
+    "DurationOfPitch",
+    "Occupation",
+    "Gender",
+    "NumberOfPersonVisiting",
+    "NumberOfFollowups",
+    "ProductPitched",
+    "PreferredPropertyStar",
+    "MaritalStatus",
+    "NumberOfTrips",
+    "Passport",
+    "PitchSatisfactionScore",
+    "OwnCar",
+    "NumberOfChildrenVisiting",
+    "Designation",
+    "MonthlyIncome"
+  ],
+  "best_params": {
+    "classifier__colsample_bytree": 0.8,
+    "classifier__learning_rate": 0.1,
+    "classifier__max_depth": 5,
+    "classifier__n_estimators": 200,
+    "classifier__subsample": 0.8
+  },
+  "metrics": {
+    "train_accuracy": 0.9861543786777431,
+    "test_accuracy": 0.9015334947538337,
+    "test_precision": 0.8461538461538461,
+    "test_recall": 0.5983263598326359,
+    "test_f1": 0.7009803921568627,
+    "test_roc_auc": 0.9405941422594143
+  }
+}
