@@ -1,0 +1,91 @@
+name: Tourism Package Prediction CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  register-dataset:
+    name: Register Dataset
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: pip install -r tourism_project/requirements.txt
+      - name: Register and validate dataset
+        run: python tourism_project/model_building/data_register.py
+      - name: Upload registered dataset
+        uses: actions/upload-artifact@v4
+        with:
+          name: registered-data
+          path: tourism_project/data/tourism.csv
+          retention-days: 7
+
+  data-preparation:
+    name: Data Preparation
+    needs: register-dataset
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: pip install -r tourism_project/requirements.txt
+      - name: Prepare train and test data
+        run: python tourism_project/model_building/prep.py
+      - name: Upload train test splits
+        uses: actions/upload-artifact@v4
+        with:
+          name: data-splits
+          path: |
+            Xtrain.csv
+            Xtest.csv
+            ytrain.csv
+            ytest.csv
+          retention-days: 7
+
+  model-training:
+    name: Model Training and MLflow Tracking
+    needs: data-preparation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: pip install -r tourism_project/requirements.txt
+      - name: Download train test splits
+        uses: actions/download-artifact@v4
+        with:
+          name: data-splits
+      - name: Start MLflow tracking server
+        run: |
+          nohup mlflow ui --host 127.0.0.1 --port 5000 > mlflow.log 2>&1 &
+          for i in {1..20}; do
+            if curl --silent --fail http://127.0.0.1:5000/health; then
+              break
+            fi
+            sleep 2
+          done
+      - name: Train, tune, evaluate and save model
+        env:
+          MLFLOW_TRACKING_URI: http://127.0.0.1:5000
+        run: python tourism_project/model_building/train.py
+      - name: Commit trained model
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add tourism_project/deployment/best_tourism_package_model_v1.joblib
+          git add tourism_project/deployment/model_metadata.json
+          git commit -m "Add updated tourism package model [skip ci]" || echo "No model changes to commit"
+          git push
